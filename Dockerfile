@@ -36,8 +36,8 @@ COPY ./requirements.txt /tmp/requirements.txt
 RUN if [ $DEV = "true" ]; \
       then python -m pip install -r /tmp/requirements.dev.txt; \
       else python -m pip install -r /tmp/requirements.txt; \
-    fi \
-    && rm -r /tmp/
+    fi && \
+    rm -r /tmp/
 
 
 # Switch to the non-privileged user to run the application.
