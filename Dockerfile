@@ -26,9 +26,6 @@ RUN adduser \
     django-user
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
 
 ARG DEV=false
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
@@ -38,7 +35,6 @@ RUN if [ $DEV = "true" ]; \
       else python -m pip install -r /tmp/requirements.txt; \
     fi && \
     rm -r /tmp/
-
 
 # Switch to the non-privileged user to run the application.
 USER django-user
