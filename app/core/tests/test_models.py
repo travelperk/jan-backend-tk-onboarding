@@ -1,6 +1,8 @@
 import pytest
 from django.contrib.auth import get_user_model
 
+from core import models
+
 DEFAULT_PASS = "test123"
 
 
@@ -56,3 +58,17 @@ def test_user_can_log_in():
     get_user_model().objects.create_user("test@example.com", DEFAULT_PASS)
     user = get_user_model().objects.first()
     assert user.check_password(DEFAULT_PASS) is True
+
+
+@pytest.mark.django_db
+def test_create_recipe(user):
+    """Test creating a recipe"""
+    recipe = models.Recipe.objects.create(
+        user=user,
+        title="Test recipe",
+        time_minutes=5,
+        price=5.50,
+        description="Sample recipe description",
+    )
+
+    assert str(recipe) == recipe.title
