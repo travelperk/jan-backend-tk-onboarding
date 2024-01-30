@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 
-from core.models import Recipe
+from core.models import Recipe, Tag
 from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 RECIPES_URL = reverse("recipe:recipe-list")
@@ -161,3 +161,83 @@ class TestPrivateRecipeAPI:
 
         assert res.status_code == status.HTTP_404_NOT_FOUND
         assert Recipe.objects.filter(id=recipe.id).exists()
+
+    @pytest.mark.django_db
+    def test_create_recipe_with_new_tags(self, api_client, api_authenticated_user):
+        """Test creating a recipe with new tags"""
+        payload = {
+            "title": "Thai Prawn Curry",
+            "time_minutes": 30,
+            "price": Decimal("2.50"),
+            "tags": [{"name": "Thai"}, {"name": "Dinner"}],
+        }
+        res = api_client.post(RECIPES_URL, payload, format="json")
+
+        assert res.status_code == status.HTTP_201_CREATED
+        recipes = Recipe.objects.filter(user=api_authenticated_user)
+        assert recipes.count() == 1
+        tags = recipes.first().tags.all()
+        assert tags.count() == 2
+
+        assert tags[0].name == payload["tags"][0]["name"]
+        assert tags[1].name == payload["tags"][1]["name"]
+
+    @pytest.mark.django_db
+    def test_create_recipe_with_existing_tags(self, api_client, api_authenticated_user):
+        """Test creating a recipe with existing tags"""
+        Tag.objects.create(user=api_authenticated_user, name="Indian")
+        payload = {
+            "title": "Pongal",
+            "time_minutes": 60,
+            "price": Decimal("4.50"),
+            "tags": [{"name": "Indian"}, {"name": "Breakfast"}],
+        }
+        res = api_client.post(RECIPES_URL, payload, format="json")
+
+        assert res.status_code == status.HTTP_201_CREATED
+        recipes = Recipe.objects.filter(user=api_authenticated_user)
+        assert recipes.count() == 1
+        recipe = recipes.first()
+        assert recipe.tags.count() == 2
+        assert list(recipe.tags.values("name")) == payload["tags"]
+
+    @pytest.mark.django_db
+    def test_create_tag_on_update(self, api_client, api_authenticated_user):
+        recipe = create_recipe(user=api_authenticated_user)
+        payload = {"tags": [{"name": "Lunch"}]}
+        url = detail_url(recipe.id)
+        res = api_client.patch(url, payload, format="json")
+
+        assert res.status_code == status.HTTP_200_OK
+        new_tag = Tag.objects.get(user=api_authenticated_user, name="Lunch")
+        assert new_tag in recipe.tags.all()
+
+    @pytest.mark.django_db
+    def test_update_recipe_assign_tag(self, api_client, api_authenticated_user):
+        """Test assigning an existing tag when updating a recipe"""
+        tag_breakfast = Tag.objects.create(user=api_authenticated_user, name="Breakfast")
+        recipe = create_recipe(user=api_authenticated_user)
+        recipe.tags.add(tag_breakfast)
+
+        tag_lunch = Tag.objects.create(user=api_authenticated_user, name="Lunch")
+        payload = {"tags": [{"name": "Lunch"}]}
+        url = detail_url(recipe.id)
+        res = api_client.patch(url, payload, format="json")
+
+        assert res.status_code == status.HTTP_200_OK
+        assert tag_lunch in recipe.tags.all()
+        assert tag_breakfast not in recipe.tags.all()
+
+    @pytest.mark.django_db
+    def test_clear_recipe_tags(self, api_client, api_authenticated_user):
+        """Test clearing all tags from a recipe"""
+        tag = Tag.objects.create(user=api_authenticated_user, name="Dessert")
+        recipe = create_recipe(user=api_authenticated_user)
+        recipe.tags.add(tag)
+
+        payload = {"tags": []}
+        url = detail_url(recipe.id)
+        res = api_client.patch(url, payload, format="json")
+
+        assert res.status_code == status.HTTP_200_OK
+        assert recipe.tags.count() == 0
