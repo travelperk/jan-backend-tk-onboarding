@@ -83,3 +83,14 @@ def test_create_tag(user):
     )
 
     assert str(tag) == tag.name
+
+
+@pytest.mark.django_db
+def test_create_ingredients(user):
+    """Test creating an ingredient"""
+    ingredient = models.Ingredient.objects.create(
+        user=user,
+        name="Test ingredient",
+    )
+
+    assert str(ingredient) == ingredient.name

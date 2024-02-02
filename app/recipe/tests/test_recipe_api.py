@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 
-from core.models import Recipe, Tag
+from core.models import Recipe, Tag, Ingredient
 from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 RECIPES_URL = reverse("recipe:recipe-list")
@@ -241,3 +241,68 @@ class TestPrivateRecipeAPI:
 
         assert res.status_code == status.HTTP_200_OK
         assert recipe.tags.count() == 0
+
+    @pytest.mark.django_db
+    def test_create_recipe_with_new_ingredients(self, api_client, api_authenticated_user):
+        """Test creating a recipe with new ingredients."""
+        payload = {
+            "title": "Cauliflower Tacos",
+            "time_minutes": 60,
+            "price": Decimal("4.30"),
+            "ingredients": [{"name": "Cauliflower"}, {"name": "Salt"}],
+        }
+        res = api_client.post(RECIPES_URL, payload, format="json")
+
+        assert res.status_code == status.HTTP_201_CREATED
+        recipe = Recipe.objects.get(id=res.data["id"])
+        ingredients = recipe.ingredients.all()
+        assert ingredients.count() == 2
+        assert ingredients[0].name == payload["ingredients"][0]["name"]
+        assert ingredients[1].name == payload["ingredients"][1]["name"]
+
+    @pytest.mark.django_db
+    def test_create_recipe_with_existing_ingredients(self, api_client, api_authenticated_user):
+        """Test creating a recipe with existing ingredients."""
+        ingredient_name = "Cauliflower"
+        Ingredient.objects.create(user=api_authenticated_user, name=ingredient_name)
+
+        payload = {
+            "title": "Cauliflower Tacos",
+            "time_minutes": 60,
+            "price": Decimal("4.30"),
+            "ingredients": [{"name": ingredient_name}, {"name": "Salt"}],
+        }
+        res = api_client.post(RECIPES_URL, payload, format="json")
+
+        assert res.status_code == status.HTTP_201_CREATED
+        assert Ingredient.objects.count() == 2
+        assert payload["ingredients"] == list(Recipe.objects.first().ingredients.values("name"))
+
+    @pytest.mark.django_db
+    def test_update_recipe_update_ingredient(self, api_client, api_authenticated_user):
+        """Test creating an ingredient on update."""
+        recipe = create_recipe(user=api_authenticated_user)
+        ingredients = [Ingredient.objects.create(user=api_authenticated_user, name="Cauliflower")]
+        recipe.ingredients.set(ingredients)
+
+        payload = {"ingredients": [{"name": "Salt"}]}
+        url = detail_url(recipe.id)
+        res = api_client.patch(url, payload, format="json")
+
+        assert res.status_code == status.HTTP_200_OK
+        assert recipe.ingredients.count() == 1
+        assert recipe.ingredients.first().name == "Salt"
+
+    @pytest.mark.django_db
+    def test_clear_recipe_ingredients(self, api_client, api_authenticated_user):
+        """Test clearing all ingredients from a recipe."""
+        recipe = create_recipe(user=api_authenticated_user)
+        ingredients = [Ingredient.objects.create(user=api_authenticated_user, name="Cauliflower")]
+        recipe.ingredients.set(ingredients)
+
+        payload = {"ingredients": []}
+        url = detail_url(recipe.id)
+        res = api_client.patch(url, payload, format="json")
+
+        assert res.status_code == status.HTTP_200_OK
+        assert recipe.ingredients.count() == 0

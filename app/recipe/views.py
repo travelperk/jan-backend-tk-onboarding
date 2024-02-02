@@ -30,13 +30,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class TagViewSet(viewsets.ModelViewSet):
-    """View to manage tags"""
+class BaseRecipeAttrViewSet(viewsets.ModelViewSet):
+    """Base viewset for recipe attributes"""
 
-    serializer_class = serializers.TagSerializer
-    queryset = models.Tag.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user).order_by("-name")
+
+
+class TagViewSet(BaseRecipeAttrViewSet):
+    """View to manage tags"""
+
+    serializer_class = serializers.TagSerializer
+    queryset = models.Tag.objects.all()
+
+
+class IngredientViewSet(BaseRecipeAttrViewSet):
+    """View to manage ingredients"""
+
+    serializer_class = serializers.IngredientSerializer
+    queryset = models.Ingredient.objects.all()

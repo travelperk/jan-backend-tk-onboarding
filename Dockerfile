@@ -31,8 +31,8 @@ ARG DEV=false
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./requirements.txt /tmp/requirements.txt
 RUN if [ $DEV = "true" ]; \
-      then python -m pip install -r /tmp/requirements.dev.txt; \
-      else python -m pip install -r /tmp/requirements.txt; \
+      then python -m pip install --no-cache-dir -r /tmp/requirements.dev.txt; \
+      else python -m pip install --no-cache-dir -r /tmp/requirements.txt; \
     fi && \
     rm -r /tmp/
 
