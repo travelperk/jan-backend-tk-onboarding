@@ -23,18 +23,25 @@ RUN adduser \
     --shell "/sbin/nologin" \
     --no-create-home \
     --uid "${UID}" \
-    django-user
+    django-user && \
+    mkdir -p /vol/web/media && \
+    mkdir -p /vol/web/static && \
+    chown -R django-user:django-user /vol && \
+    chmod -R 755 /vol
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 
 ARG DEV=false
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./requirements.txt /tmp/requirements.txt
-RUN if [ $DEV = "true" ]; \
+RUN apk add --update --no-cache jpeg-dev && \
+    apk add --update --no-cache --virtual .tmp-build-deps build-base zlib zlib-dev && \
+    if [ $DEV = "true" ]; \
       then python -m pip install --no-cache-dir -r /tmp/requirements.dev.txt; \
       else python -m pip install --no-cache-dir -r /tmp/requirements.txt; \
     fi && \
-    rm -r /tmp/
+    rm -r /tmp/ && \
+    apk del .tmp-build-deps
 
 # Switch to the non-privileged user to run the application.
 USER django-user

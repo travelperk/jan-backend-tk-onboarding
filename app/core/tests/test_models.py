@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth import get_user_model
 
@@ -94,3 +96,14 @@ def test_create_ingredients(user):
     )
 
     assert str(ingredient) == ingredient.name
+
+
+@pytest.mark.django_db
+@patch("core.models.uuid.uuid4")
+def test_recipe_file_name_uuid(mock_uuid):
+    """Test generating image path"""
+    uuid = "test-uuid"
+    mock_uuid.return_value = uuid
+    file_path = models.recipe_image_file_path(None, "example.jpg")
+
+    assert file_path == f"uploads/recipe/{uuid}.jpg"

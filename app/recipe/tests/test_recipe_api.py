@@ -1,6 +1,9 @@
+import tempfile
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
+from PIL import Image
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
@@ -14,6 +17,11 @@ RECIPES_URL = reverse("recipe:recipe-list")
 def detail_url(recipe_id):
     """Return recipe detail URL"""
     return reverse("recipe:recipe-detail", args=[recipe_id])
+
+
+def image_upload_url(recipe_id):
+    """Create and return an image upload URL"""
+    return reverse("recipe:recipe-upload-image", args=[recipe_id])
 
 
 def create_recipe(user, **params):
@@ -306,3 +314,38 @@ class TestPrivateRecipeAPI:
 
         assert res.status_code == status.HTTP_200_OK
         assert recipe.ingredients.count() == 0
+
+
+@pytest.mark.django_db
+class TestImageUpload:
+    """Tests for the image upload API"""
+
+    @pytest.fixture
+    def recipe(self, api_authenticated_user):
+        recipe = create_recipe(user=api_authenticated_user)
+        yield recipe
+        recipe.image.delete()
+
+    def test_upload_image(self, api_client, recipe):
+        """Test uploading an image to a recipe"""
+        url = image_upload_url(recipe.id)
+
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as image_file:
+            image = Image.new("RGB", (10, 10))
+            image.save(image_file, format="JPEG")
+            image_file.seek(0)
+
+            payload = {"image": image_file}
+            res = api_client.post(url, payload, format="multipart")
+
+        recipe.refresh_from_db()
+        assert res.status_code == status.HTTP_200_OK
+        assert "image" in res.data
+        assert Path(recipe.image.path).exists()
+
+    def test_upload_image_bad_request(self, api_client, recipe):
+        """Test uploading invalid image."""
+        url = image_upload_url(recipe.id)
+        res = api_client.post(url, {"image": "notanimage"}, format="multipart")
+
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
