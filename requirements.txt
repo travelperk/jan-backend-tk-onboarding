@@ -10,16 +10,16 @@ attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
-django==3.2.23
+django==4.2.10
     # via
     #   -r requirements.in
     #   djangorestframework
     #   drf-spectacular
-djangorestframework==3.12.4
+djangorestframework==3.14.0
     # via
     #   -r requirements.in
     #   drf-spectacular
-drf-spectacular==0.15.1
+drf-spectacular==0.27.1
     # via -r requirements.in
 inflection==0.5.1
     # via drf-spectacular
@@ -27,12 +27,12 @@ jsonschema==4.21.1
     # via drf-spectacular
 jsonschema-specifications==2023.12.1
     # via jsonschema
-pillow==8.2.0
+pillow==10.2.0
     # via -r requirements.in
 psycopg2-binary==2.9.9
     # via -r requirements.in
-pytz==2023.3.post1
-    # via django
+pytz==2024.1
+    # via djangorestframework
 pyyaml==6.0.1
     # via drf-spectacular
 referencing==0.33.0

@@ -17,16 +17,16 @@ build==1.0.3
     # via pip-tools
 click==8.1.7
     # via pip-tools
-django==3.2.23
+django==4.2.10
     # via
     #   -r requirements.txt
     #   djangorestframework
     #   drf-spectacular
-djangorestframework==3.12.4
+djangorestframework==3.14.0
     # via
     #   -r requirements.txt
     #   drf-spectacular
-drf-spectacular==0.15.1
+drf-spectacular==0.27.1
     # via -r requirements.txt
 inflection==0.5.1
     # via
@@ -46,7 +46,7 @@ packaging==23.2
     # via
     #   build
     #   pytest
-pillow==8.2.0
+pillow==10.2.0
     # via -r requirements.txt
 pip-tools==7.3.0
     # via -r requirements.dev.in
@@ -56,16 +56,16 @@ psycopg2-binary==2.9.9
     # via -r requirements.txt
 pyproject-hooks==1.0.0
     # via build
-pytest==7.4.4
+pytest==8.0.0
     # via
     #   -r requirements.dev.in
     #   pytest-django
-pytest-django==4.7.0
+pytest-django==4.8.0
     # via -r requirements.dev.in
-pytz==2023.3.post1
+pytz==2024.1
     # via
     #   -r requirements.txt
-    #   django
+    #   djangorestframework
 pyyaml==6.0.1
     # via
     #   -r requirements.txt
@@ -80,7 +80,7 @@ rpds-py==0.17.1
     #   -r requirements.txt
     #   jsonschema
     #   referencing
-ruff==0.1.14
+ruff==0.2.1
     # via -r requirements.dev.in
 sqlparse==0.4.4
     # via
