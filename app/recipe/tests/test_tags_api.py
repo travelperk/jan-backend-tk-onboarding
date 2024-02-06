@@ -68,3 +68,35 @@ class TestPrivateTagsApi:
 
         assert res.status_code == status.HTTP_204_NO_CONTENT
         assert not models.Tag.objects.filter(id=tag.id).exists()
+
+    def test_filter_tags_assigned_to_recipes(self, api_client, api_authenticated_user):
+        """Test filtering tags by those assigned to recipes"""
+        tag1 = models.Tag.objects.create(user=api_authenticated_user, name="Breakfast")
+        tag2 = models.Tag.objects.create(user=api_authenticated_user, name="Lunch")
+        recipe = models.Recipe.objects.create(
+            user=api_authenticated_user, title="Green eggs on toast", time_minutes=10, price=2.5
+        )
+        recipe.tags.add(tag1)
+
+        res = api_client.get(TAGS_URL, {"assigned_only": 1})
+
+        serializer1 = TagSerializer(tag1)
+        serializer2 = TagSerializer(tag2)
+        assert serializer1.data in res.data
+        assert serializer2.data not in res.data
+
+    def test_filter_tags_assigned_unique(self, api_client, api_authenticated_user):
+        """Test filtering tags by assigned returns unique items"""
+        tag = models.Tag.objects.create(user=api_authenticated_user, name="Breakfast")
+        models.Tag.objects.create(user=api_authenticated_user, name="Lunch")
+        recipe1 = models.Recipe.objects.create(
+            user=api_authenticated_user, title="Pancakes", time_minutes=5, price=3.0
+        )
+        recipe1.tags.add(tag)
+        recipe2 = models.Recipe.objects.create(
+            user=api_authenticated_user, title="Porridge", time_minutes=3, price=2.0
+        )
+        recipe2.tags.add(tag)
+
+        res = api_client.get(TAGS_URL, {"assigned_only": 1})
+        assert len(res.data) == 1

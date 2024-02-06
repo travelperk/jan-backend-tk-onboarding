@@ -315,6 +315,54 @@ class TestPrivateRecipeAPI:
         assert res.status_code == status.HTTP_200_OK
         assert recipe.ingredients.count() == 0
 
+    @pytest.mark.django_db
+    def test_filter_by_tags(self, api_client, api_authenticated_user):
+        """Test returning recipes with specific tags"""
+        r1 = create_recipe(user=api_authenticated_user, title="Thai Vegetable Curry")
+        r2 = create_recipe(user=api_authenticated_user, title="Aubergine with Tahini")
+
+        # Recipes with tags
+        tag1 = Tag.objects.create(user=api_authenticated_user, name="Vegan")
+        tag2 = Tag.objects.create(user=api_authenticated_user, name="Vegetarian")
+        r1.tags.add(tag1)
+        r2.tags.add(tag2)
+
+        # Recipes without tags
+        create_recipe(user=api_authenticated_user, title="Fish and chips")
+
+        params = {"tags": f"{tag1.id},{tag2.id}"}
+        res = api_client.get(RECIPES_URL, params)
+
+        tagged_recipes = RecipeSerializer([r2, r1], many=True)
+
+        assert res.status_code == status.HTTP_200_OK
+        # Only expect the recipes with the tags to be returned
+        assert tagged_recipes.data == res.data
+
+    @pytest.mark.django_db
+    def test_filter_by_ingredients(self, api_client, api_authenticated_user):
+        """Test returning recipes with specific ingredients"""
+        r1 = create_recipe(user=api_authenticated_user, title="Posh beans on toast")
+        r2 = create_recipe(user=api_authenticated_user, title="Chicken Cacciatore")
+
+        # Recipes with ingredients
+        ingredient1 = Ingredient.objects.create(user=api_authenticated_user, name="Feta cheese")
+        ingredient2 = Ingredient.objects.create(user=api_authenticated_user, name="Chicken")
+        r1.ingredients.add(ingredient1)
+        r2.ingredients.add(ingredient2)
+
+        # Recipes without ingredients
+        create_recipe(user=api_authenticated_user, title="Red Lentil Daal")
+
+        params = {"ingredients": f"{ingredient1.id},{ingredient2.id}"}
+        res = api_client.get(RECIPES_URL, params)
+
+        ingredient_recipes = RecipeSerializer([r2, r1], many=True)
+
+        assert res.status_code == status.HTTP_200_OK
+        # Only expect the recipes with the ingredients to be returned
+        assert ingredient_recipes.data == res.data
+
 
 @pytest.mark.django_db
 class TestImageUpload:
