@@ -28,6 +28,8 @@ services:
       DB_NAME: django
       DB_USER: django
       DB_PASSWORD: django
+      DEBUG: 1
+      SECRET_KEY: dev-secret-key
     depends_on:
       db:
         condition: service_healthy
