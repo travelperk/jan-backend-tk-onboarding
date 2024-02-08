@@ -48,10 +48,14 @@ packaging==23.2
     #   pytest
 pillow==10.2.0
     # via -r requirements.txt
+pip-licenses==4.3.4
+    # via -r requirements.dev.in
 pip-tools==7.3.0
     # via -r requirements.dev.in
 pluggy==1.4.0
     # via pytest
+prettytable==3.9.0
+    # via pip-licenses
 psycopg2-binary==2.9.9
     # via -r requirements.txt
 pyproject-hooks==1.0.0
@@ -90,6 +94,8 @@ uritemplate==4.1.1
     # via
     #   -r requirements.txt
     #   drf-spectacular
+wcwidth==0.2.13
+    # via prettytable
 wheel==0.42.0
     # via pip-tools
 
