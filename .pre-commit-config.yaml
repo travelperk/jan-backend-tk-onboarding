@@ -16,7 +16,7 @@ repos:
         description: Static code analysis tool powered by semgrep.
         entry: scripts/pre-commit/sast.sh
         language: script
-        stages: [ pre-push ]
+        stages: [ pre-commit ]
       - id: licenses
         name: License Scanning
         description: Unauthorized license usage prevention tool powered by pip-licenses.

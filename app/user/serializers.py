@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
@@ -20,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password", None)
         user = super().update(instance, validated_data)
 
-        if password:
+        if validate_password(password, user=user):
             user.set_password(password)
             user.save()
 
