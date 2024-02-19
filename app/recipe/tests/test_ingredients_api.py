@@ -45,7 +45,7 @@ class TestPrivateIngredientsApi:
 
     def test_ingredients_limited_to_user(self, api_client, api_authenticated_user):
         """Test list of ingredients is limited to authenticated user"""
-        user2 = get_user_model().objects.create_user("user2@example.com", "testpass")
+        user2 = get_user_model().objects.create_user("user2@example.com", "AJoDU6xth5Nh")
         Ingredient.objects.create(user=user2, name="Salt")
         Ingredient.objects.create(user=api_authenticated_user, name="Pepper")
 

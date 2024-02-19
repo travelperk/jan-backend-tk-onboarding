@@ -24,9 +24,9 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError("User must have an email address.")
         user = self.model(email=self.normalize_email(email), **kwargs)
-        if validate_password(password, user=user):
-            user.set_password(password)
-            user.save(using=self._db)
+        validate_password(password, user=user)
+        user.set_password(password)
+        user.save(using=self._db)
 
         return user
 

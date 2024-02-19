@@ -21,7 +21,7 @@ class TestPublicUserApi:
         """Test creating a user is successful."""
         payload = {
             "email": "test@example.com",
-            "password": "test123",
+            "password": "Mmf3pEm4AJ",
             "name": "Test Name",
         }
         res = api_client.post(CREATE_USER_URL, payload)
@@ -32,14 +32,18 @@ class TestPublicUserApi:
 
     def test_user_with_email_exists(self, api_client):
         """Test error returned if user with email exists."""
-        payload = {"email": "test@example.com", "password": "test123", "name": "Test Name"}
+        payload = {"email": "test@example.com", "password": "Mmf3pEm4AJ", "name": "Test Name"}
         create_user_helper(**payload)
         res = api_client.post(CREATE_USER_URL, payload)
         assert res.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_create_token_for_user(self, api_client):
         """Test generates token for valid credentials"""
-        user_details = {"email": "test@example.com", "password": "test123", "name": "Test Name"}
+        user_details = {
+            "email": "test@example.com",
+            "password": "Mmf3pEm4AJ",
+            "name": "Test Name",
+        }
         create_user_helper(**user_details)
 
         payload = {
@@ -53,7 +57,7 @@ class TestPublicUserApi:
 
     def test_create_token_bad_credentials(self, api_client):
         """Test returns error if credentials invalid"""
-        create_user_helper(email="test@example.com", password="goodpass")
+        create_user_helper(email="test@example.com", password="AJoDU6xth5Nh")
 
         payload = {"email": "test@example.com", "password": "badpass"}
         res = api_client.post(TOKEN_URL, payload)
@@ -95,7 +99,7 @@ class TestPrivateUserApi:
 
     def test_update_user_profile(self, api_client, api_authenticated_user):
         """Test updating the user profile for the authenticated user"""
-        payload = {"name": "Updated name", "password": "newpassword"}
+        payload = {"name": "Updated name", "password": "Mmf3pEm4AJ"}
         res = api_client.patch(ME_URL, payload)
 
         assert res.status_code == status.HTTP_200_OK
