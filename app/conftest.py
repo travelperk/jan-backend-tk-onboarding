@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 @pytest.fixture()
 def authenticated_admin(client):
     admin = get_user_model().objects.create_superuser(
-        email="admin@example.com", password="test123", name="Test Admin"
+        email="admin@example.com", password="AJoDU6xth5Nh", name="Test Admin"
     )
 
     client.force_login(admin)
@@ -22,7 +22,7 @@ def api_client():
 def user():
     return get_user_model().objects.create_user(
         email="test@example.com",
-        password="test123",
+        password="AJoDU6xth5Nh",
     )
 
 

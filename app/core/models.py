@@ -4,6 +4,7 @@ from pathlib import PurePath
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.password_validation import validate_password
 from django.db import models
 
 
@@ -23,6 +24,7 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError("User must have an email address.")
         user = self.model(email=self.normalize_email(email), **kwargs)
+        validate_password(password, user=user)
         user.set_password(password)
         user.save(using=self._db)
 

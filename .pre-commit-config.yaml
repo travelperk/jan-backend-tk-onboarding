@@ -1,13 +1,77 @@
+fail_fast: true
+default_stages: [ pre-commit, pre-push ]
+minimum_pre_commit_version: 3.2.0
+
 repos:
-# Basic checks
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.3.0
-  hooks:
-  - id: check-yaml
-  - id: end-of-file-fixer
-  - id: trailing-whitespace
-# Ruff linter
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.15
-  hooks:
-    - id: ruff
+  - repo: local
+    hooks:
+      - id: secrets
+        name: Secret Scanning
+        description: Secret leakage prevention tool powered by gitleaks.
+        entry: scripts/pre-commit/secrets.sh
+        language: script
+        stages: [ pre-commit ]
+      - id: sast
+        name: Static Code Analysis
+        description: Static code analysis tool powered by semgrep.
+        entry: scripts/pre-commit/sast.sh
+        language: script
+        stages: [ pre-commit ]
+      - id: licenses
+        name: License Scanning
+        description: Unauthorized license usage prevention tool powered by pip-licenses.
+        entry: scripts/pre-commit/licenses.sh
+        language: script
+        stages: [ pre-commit ]
+      - id: sca
+        name: Software Composition Analysis scanning
+        description: Software composition analysis tool powered by trivy.
+        entry: scripts/pre-commit/sca.sh
+        language: script
+        stages: [ pre-commit ]
+      - id: container_sast
+        name: Container Static Code Analysis Scanning
+        description: Dockerfile static code analysis tool powered by trivy.
+        entry: scripts/pre-commit/container_sast.sh
+        language: script
+        stages: [ pre-push ]
+      - id: iac_tf
+        name: Terraform IaC Scanning
+        description: Terraform IaC scanning tool powered by tfsec.
+        entry: scripts/pre-commit/iac_tf.sh
+        language: script
+        stages: [ pre-commit ]
+        args: [ "CRITICAL" ]
+      - id: beautify_codeowners
+        name: Beautify CODEOWNERS
+        description: Sorts CODEOWNERS taking into account our team structure to make sure we do not ignore rules
+        language: script
+        entry: scripts/pre-commit/beautify_codeowners.sh
+        stages: [ pre-push ]
+      - id: check-codeowners
+        name: Check CODEOWNERS
+        description: Validates that all files are covered by CODEOWNERS
+        language: script
+        entry: scripts/pre-commit/check-codeowners.sh
+        stages: [ pre-push ]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-yaml
+        stages: [ pre-commit ]
+      - id: end-of-file-fixer
+        stages: [ pre-commit ]
+      - id: trailing-whitespace
+        stages: [ pre-commit ]
+
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: shellcheck
+        stages: [ pre-commit ]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.15
+    hooks:
+      - id: ruff
+        stages: [ pre-commit ]

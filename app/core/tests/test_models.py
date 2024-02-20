@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 
 from core import models
 
-DEFAULT_PASS = "test123"
+DEFAULT_PASS = "Mmf3pEm4AJ"
 
 
 @pytest.mark.django_db

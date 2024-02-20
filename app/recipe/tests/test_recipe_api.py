@@ -12,6 +12,7 @@ from core.models import Recipe, Tag, Ingredient
 from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 RECIPES_URL = reverse("recipe:recipe-list")
+DEFAULT_PASS = "3pEm4AJoDU6xt"
 
 
 def detail_url(recipe_id):
@@ -137,7 +138,9 @@ class TestPrivateRecipeAPI:
     @pytest.mark.django_db
     def test_update_user_does_nothing(self, api_client, api_authenticated_user):
         """Test that user cannot be updated"""
-        new_user = get_user_model().objects.create(email="user2@example.com", password="test123")
+        new_user = get_user_model().objects.create(
+            email="user2@example.com", password=DEFAULT_PASS
+        )
         recipe = create_recipe(user=api_authenticated_user)
 
         payload = {"user": new_user.id}
@@ -161,7 +164,9 @@ class TestPrivateRecipeAPI:
     @pytest.mark.django_db
     def test_recipe_other_users_recipe_error(self, api_client, api_authenticated_user):
         """Test that user cannot delete other users recipe"""
-        new_user = get_user_model().objects.create(email="user2@example.com", password="test123")
+        new_user = get_user_model().objects.create(
+            email="user2@example.com", password=DEFAULT_PASS
+        )
         recipe = create_recipe(user=new_user)
 
         url = detail_url(recipe.id)
